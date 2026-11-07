@@ -32,7 +32,7 @@ export default function Navbar() {
     "flex min-h-11 items-center justify-center rounded-full bg-gold px-5 font-extrabold text-ink hover:bg-butter active:bg-butter";
 
   return (
-    <nav className="no-print bg-ink px-5 py-3 md:px-10">
+    <nav className="no-print sticky top-0 z-50 bg-ink px-5 py-3 md:px-10">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3">
         <Link href="/" className="flex items-center gap-2 text-xl font-extrabold text-cream">
           <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">

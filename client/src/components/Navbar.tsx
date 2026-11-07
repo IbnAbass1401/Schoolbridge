@@ -8,6 +8,7 @@ import type { User } from "@/lib/useRequireAuth";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -28,11 +29,11 @@ export default function Navbar() {
   const link = (href: string) =>
     `${base} ${pathname === href ? "border-gold text-gold" : "border-transparent text-butter"}`;
   const cta =
-    "flex min-h-11 items-center rounded-full bg-gold px-5 font-extrabold text-ink hover:bg-butter active:bg-butter";
+    "flex min-h-11 items-center justify-center rounded-full bg-gold px-5 font-extrabold text-ink hover:bg-butter active:bg-butter";
 
   return (
     <nav className="no-print bg-ink px-5 py-3 md:px-10">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3">
         <Link href="/" className="flex items-center gap-2 text-xl font-extrabold text-cream">
           <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
             <rect width="32" height="32" rx="8" fill="#F5B700" />
@@ -47,7 +48,28 @@ export default function Navbar() {
           SchoolBridge
         </Link>
 
-        <div className="flex flex-wrap items-center gap-5">
+        <button
+          type="button"
+          aria-label="Menu"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-cream md:hidden"
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            {open ? (
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            ) : (
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            )}
+          </svg>
+        </button>
+
+        <div
+          onClick={() => setOpen(false)}
+          className={`${
+            open ? "flex" : "hidden"
+          } w-full flex-col gap-1 pb-2 pt-3 md:flex md:w-auto md:flex-row md:items-center md:gap-5 md:p-0`}
+        >
           {user?.role === "parent" && (
             <>
               <Link href="/dashboard" className={link("/dashboard")}>
@@ -74,7 +96,7 @@ export default function Navbar() {
             </Link>
           )}
           {user ? (
-            <button onClick={logout} className={cta}>
+            <button onClick={logout} className={`${cta} mt-2 md:mt-0`}>
               Log out
             </button>
           ) : (
@@ -82,7 +104,7 @@ export default function Navbar() {
               <Link href="/login" className={link("/login")}>
                 Parent log in
               </Link>
-              <Link href="/register" className={cta}>
+              <Link href="/register" className={`${cta} mt-2 md:mt-0`}>
                 Parent sign up
               </Link>
             </>

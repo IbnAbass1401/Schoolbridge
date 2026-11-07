@@ -24,19 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased">
-        <div className="bg-gold px-4 py-1.5 text-center text-sm font-extrabold text-ink">
-          Demo mode: mock payments, no real money moves. Built for the Blaaiz Buildathon.
-        </div>
         <Suspense fallback={<div className="h-17 bg-ink" />}>
           <Navbar />
         </Suspense>
         <div className="flex-1">{children}</div>
         <footer className="bg-ink px-5 py-6 text-center text-sm text-butter">
-          <div className="font-extrabold text-cream">SchoolBridge</div>
-          <div className="mt-1 text-butter/80">
-            Demo project. Payments are simulated in the style of the Blaaiz cross-border flow
-            (NGN collection, USD payout).
-          </div>
+          &copy; 2026 SchoolBridge
         </footer>
       </body>
     </html>

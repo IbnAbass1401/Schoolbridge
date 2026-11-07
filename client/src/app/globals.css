@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Make hover: work on touchscreen laptops too (Tailwind v4 normally gates it behind a hover-capable check) */
+@custom-variant hover (&:hover);
+
+@theme {
+  --color-cream: #FFFBEA;
+  --color-butter: #FDE68A;
+  --color-gold: #F5B700;
+  --color-navy: #1E3A5F;
+  --color-ink: #0B1B2E;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+/* Better touch behaviour */
+a,
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+button:active,
+a:active {
+  transform: scale(0.97);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}

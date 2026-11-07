@@ -8,9 +8,11 @@ import { api } from "@/lib/api";
 export default function AuthForm({
   mode,
   role = "parent",
+  showSwitch = true,
 }: {
   mode: "login" | "register";
   role?: "parent" | "student";
+  showSwitch?: boolean;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -42,15 +44,11 @@ export default function AuthForm({
   const input =
     "min-h-12 rounded-xl border-2 border-slate-300 bg-white px-4 font-semibold outline-none focus:border-navy";
 
-  const title =
-    mode === "login"
-      ? "Log in"
-      : role === "student"
-      ? "Create student account"
-      : "Create parent account";
+  const who = role === "student" ? "Student" : "Parent";
+  const title = mode === "login" ? `${who} log in` : `Create ${who.toLowerCase()} account`;
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-5 py-14">
+    <main className="mx-auto flex max-w-md flex-col gap-6 px-5 py-10">
       <h1 className="text-3xl font-extrabold">{title}</h1>
       {mode === "register" && role === "student" && (
         <p className="text-sm text-navy/80">
@@ -84,18 +82,20 @@ export default function AuthForm({
         </button>
       </form>
 
-      <p className="text-sm text-navy/80">
-        {mode === "login" ? (
-          <>
-            No account?{" "}
-            <Link href="/register" className="font-bold underline">Parent sign up</Link>
-            {" or "}
-            <Link href="/student/register" className="font-bold underline">Student sign up</Link>
-          </>
-        ) : (
-          <>Already registered? <Link href="/login" className="font-bold underline">Log in</Link></>
-        )}
-      </p>
+      {showSwitch && (
+        <p className="text-sm text-navy/80">
+          {mode === "login" ? (
+            <>
+              No account?{" "}
+              <Link href="/register" className="font-bold underline">Parent sign up</Link>
+              {" or "}
+              <Link href="/student" className="font-bold underline">Student sign up</Link>
+            </>
+          ) : (
+            <>Already registered? <Link href="/login" className="font-bold underline">Log in</Link></>
+          )}
+        </p>
+      )}
     </main>
   );
 }

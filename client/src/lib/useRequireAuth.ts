@@ -19,7 +19,7 @@ export function useRequireAuth(role?: "parent" | "student") {
         }
         setUser(u);
       })
-      .catch(() => router.replace("/login"));
+      .catch(() => router.replace(role === "student" ? "/student" : "/login"));
   }, [router, role]);
 
   return user;

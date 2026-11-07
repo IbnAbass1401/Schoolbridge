@@ -16,6 +16,7 @@ function forStudent(p: any) {
   return {
     id: p.id,
     studentName: p.studentName,
+    studentEmail: p.studentEmail,
     studentLevel: p.studentLevel,
     university: p.university,
     term: p.term,
@@ -28,42 +29,6 @@ function forStudent(p: any) {
   };
 }
 
-// Public quick check (no account): code + email
-router.post("/check", limiter, async (req, res) => {
-  try {
-    const { ticketCode, email } = req.body ?? {};
-    if (!ticketCode || !email) {
-      return res.status(400).json({ message: "Ticket code and email are required" });
-    }
-
-    const p = await Payment.findOne({
-      ticketCode: String(ticketCode).trim().toUpperCase(),
-      studentEmail: String(email).trim().toLowerCase(),
-    });
-    if (!p) {
-      return res.status(404).json({ message: "No payment found for that code and email" });
-    }
-
-    const paid = p.status !== "unpaid" && p.status !== "failed";
-    res.json({
-      paid,
-      status: p.status,
-      message: paid
-        ? "Your tuition has been paid."
-        : "Your tuition has not been paid yet. Ask your parent to complete the payment.",
-      studentName: p.studentName,
-      university: p.university,
-      term: p.term,
-      amountUSD: p.amountUSD,
-      updatedAt: p.updatedAt,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Something went wrong" });
-  }
-});
-
-// Student accounts
 router.post("/claim", limiter, requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
   try {
     const { ticketCode, level } = req.body ?? {};
@@ -99,6 +64,16 @@ router.post("/claim", limiter, requireAuth, requireRole("student"), async (req: 
 router.get("/payments", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
   const list = await Payment.find({ student: req.userId }).sort({ createdAt: -1 });
   res.json(list.map(forStudent));
+});
+
+router.get("/payments/:id", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
+  try {
+    const p = await Payment.findOne({ _id: req.params.id, student: req.userId });
+    if (!p) return res.status(404).json({ message: "Receipt not found" });
+    res.json(forStudent(p));
+  } catch {
+    res.status(400).json({ message: "Invalid receipt id" });
+  }
 });
 
 export default router;

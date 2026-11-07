@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Make hover: work on touchscreen laptops too (Tailwind v4 normally gates it behind a hover-capable check) */
+/* Make hover: work on touchscreen laptops too */
 @custom-variant hover (&:hover);
 
 @theme {
@@ -17,7 +17,6 @@ body {
   color: var(--color-ink);
 }
 
-/* Better touch behaviour */
 a,
 button {
   touch-action: manipulation;
@@ -33,4 +32,14 @@ a:active {
 :focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 2px;
+}
+
+/* Printing the receipt: hide nav and buttons */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
 }

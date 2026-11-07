@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-sans antialiased">
-        <Suspense fallback={<div className="h-[68px] bg-ink" />}>
+        <Suspense fallback={<div className="h-17 bg-ink" />}>
           <Navbar />
         </Suspense>
         {children}

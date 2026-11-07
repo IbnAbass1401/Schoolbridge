@@ -31,7 +31,7 @@ export default function Navbar() {
     "flex min-h-11 items-center rounded-full bg-gold px-5 font-extrabold text-ink hover:bg-butter active:bg-butter";
 
   return (
-    <nav className="bg-ink px-5 py-3 md:px-10">
+    <nav className="no-print bg-ink px-5 py-3 md:px-10">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 text-xl font-extrabold text-cream">
           <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
@@ -59,9 +59,14 @@ export default function Navbar() {
             </>
           )}
           {user?.role === "student" && (
-            <Link href="/student/dashboard" className={link("/student/dashboard")}>
-              My tuition
-            </Link>
+            <>
+              <Link href="/student/dashboard" className={link("/student/dashboard")}>
+                My tuition
+              </Link>
+              <Link href="/student/verify" className={link("/student/verify")}>
+                Verify tuition
+              </Link>
+            </>
           )}
           {!user && (
             <Link href="/student" className={link("/student")}>
@@ -75,7 +80,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/login" className={link("/login")}>
-                Log in
+                Parent log in
               </Link>
               <Link href="/register" className={cta}>
                 Parent sign up

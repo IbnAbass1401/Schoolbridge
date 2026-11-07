@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { Payment } from "../models/Payment";
 import { UNIVERSITIES } from "../config/universities";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { LEVELS } from "../config/levels";
+import { requireAuth, requireRole, AuthRequest } from "../middleware/auth";
 import { generateTicketCode } from "../utils/ticket";
 import { ngnToUsd, NGN_PER_USD, isMock, runMockLifecycle } from "../services/payments";
 
@@ -12,6 +13,7 @@ function serialize(p: any) {
     id: p.id,
     studentName: p.studentName,
     studentEmail: p.studentEmail,
+    studentLevel: p.studentLevel,
     university: p.university,
     term: p.term,
     amountNGN: p.amountNGN,
@@ -37,16 +39,20 @@ router.get("/quote", (req, res) => {
 });
 
 // Everything below needs a logged-in parent
-router.use(requireAuth);
+router.use(requireAuth, requireRole("parent"));
 
 router.post("/", async (req: AuthRequest, res) => {
   try {
-    const { studentName, studentEmail, university, term, amountNGN } = req.body ?? {};
-    if (!studentName || !studentEmail || !university || !term || !amountNGN) {
+    const { studentName, studentEmail, studentLevel, university, term, amountNGN } =
+      req.body ?? {};
+    if (!studentName || !studentEmail || !studentLevel || !university || !term || !amountNGN) {
       return res.status(400).json({ message: "All fields are required" });
     }
     if (!(UNIVERSITIES as readonly string[]).includes(university)) {
       return res.status(400).json({ message: "Pick a university from the list" });
+    }
+    if (!(LEVELS as readonly string[]).includes(studentLevel)) {
+      return res.status(400).json({ message: "Pick the student's level from the list" });
     }
     const amount = Number(amountNGN);
     if (!amount || amount <= 0) {
@@ -60,6 +66,7 @@ router.post("/", async (req: AuthRequest, res) => {
       parent: req.userId,
       studentName,
       studentEmail,
+      studentLevel,
       university,
       term,
       amountNGN: amount,

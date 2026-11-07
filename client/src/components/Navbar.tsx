@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-
-type User = { id: string; name: string; email: string };
+import type { User } from "@/lib/useRequireAuth";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -24,8 +23,10 @@ export default function Navbar() {
     router.push("/");
   }
 
-  const link =
-    "flex min-h-11 items-center font-semibold text-butter hover:text-gold active:text-gold";
+  const base =
+    "flex min-h-11 items-center border-b-2 font-semibold hover:text-gold active:text-gold";
+  const link = (href: string) =>
+    `${base} ${pathname === href ? "border-gold text-gold" : "border-transparent text-butter"}`;
   const cta =
     "flex min-h-11 items-center rounded-full bg-gold px-5 font-extrabold text-ink hover:bg-butter active:bg-butter";
 
@@ -47,24 +48,33 @@ export default function Navbar() {
         </Link>
 
         <div className="flex flex-wrap items-center gap-5">
-          <Link href="/student" className={link}>
-            I am a student
-          </Link>
-          {user ? (
+          {user?.role === "parent" && (
             <>
-              <Link href="/dashboard" className={link}>
+              <Link href="/dashboard" className={link("/dashboard")}>
                 Dashboard
               </Link>
-              <Link href="/pay" className={link}>
+              <Link href="/pay" className={link("/pay")}>
                 New payment
               </Link>
-              <button onClick={logout} className={cta}>
-                Log out
-              </button>
             </>
+          )}
+          {user?.role === "student" && (
+            <Link href="/student/dashboard" className={link("/student/dashboard")}>
+              My tuition
+            </Link>
+          )}
+          {!user && (
+            <Link href="/student" className={link("/student")}>
+              I am a student
+            </Link>
+          )}
+          {user ? (
+            <button onClick={logout} className={cta}>
+              Log out
+            </button>
           ) : (
             <>
-              <Link href="/login" className={link}>
+              <Link href="/login" className={link("/login")}>
                 Log in
               </Link>
               <Link href="/register" className={cta}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -12,6 +12,7 @@ type Payment = {
   id: string;
   studentName: string;
   studentEmail: string;
+  studentLevel: string;
   university: string;
   term: string;
   amountNGN: number;
@@ -20,8 +21,8 @@ type Payment = {
   status: string;
 };
 
-export default function ReceiptPage() {
-  const user = useRequireAuth();
+function ReceiptView() {
+  const user = useRequireAuth("parent");
   const { id } = useParams<{ id: string }>();
   const [p, setP] = useState<Payment | null>(null);
   const [error, setError] = useState("");
@@ -78,7 +79,9 @@ export default function ReceiptPage() {
 
       <div className="rounded-2xl border-2 border-navy bg-white p-5">
         <div className="font-extrabold">{p.studentName}</div>
-        <div className="text-sm text-navy/70">{p.university} &middot; {p.term}</div>
+        <div className="text-sm text-navy/70">
+          {p.university} &middot; {p.term} &middot; {p.studentLevel}
+        </div>
         <div className="mt-3 flex items-baseline gap-3">
           <span className="text-2xl font-extrabold">&#8358;{p.amountNGN.toLocaleString()}</span>
           <span className="text-navy/70">&asymp; ${p.amountUSD.toFixed(2)}</span>
@@ -104,7 +107,7 @@ export default function ReceiptPage() {
             <div className="text-sm font-semibold text-butter">TICKET CODE</div>
             <div className="mt-1 text-3xl font-extrabold tracking-widest">{p.ticketCode}</div>
             <p className="mt-2 text-sm text-cream/80">
-              Send this code to {p.studentName.split(" ")[0]}. They also need their email ({p.studentEmail}).
+              Send this code to {p.studentName.split(" ")[0]}. They also need their email ({p.studentEmail}) and level ({p.studentLevel}).
             </p>
           </div>
           <button
@@ -121,5 +124,13 @@ export default function ReceiptPage() {
         Back to dashboard
       </Link>
     </main>
+  );
+}
+
+export default function ReceiptPage() {
+  return (
+    <Suspense fallback={<main className="mx-auto max-w-lg px-5 py-12">Loading...</main>}>
+      <ReceiptView />
+    </Suspense>
   );
 }

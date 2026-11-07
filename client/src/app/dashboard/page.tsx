@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useRequireAuth } from "@/lib/useRequireAuth";
+import { isPaid } from "@/lib/constants";
 import StatusBadge from "@/components/StatusBadge";
 
 type Payment = {
@@ -12,12 +13,13 @@ type Payment = {
   university: string;
   term: string;
   amountNGN: number;
+  amountUSD: number;
   ticketCode: string;
   status: string;
 };
 
 export default function Dashboard() {
-  const user = useRequireAuth();
+  const user = useRequireAuth("parent");
   const [list, setList] = useState<Payment[] | null>(null);
 
   useEffect(() => {
@@ -26,6 +28,10 @@ export default function Dashboard() {
   }, [user]);
 
   if (!user) return null;
+
+  const paid = (list ?? []).filter((p) => isPaid(p.status));
+  const totalNGN = paid.reduce((s, p) => s + p.amountNGN, 0);
+  const totalUSD = paid.reduce((s, p) => s + (p.amountUSD || 0), 0);
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-12">
@@ -37,6 +43,18 @@ export default function Dashboard() {
         >
           New payment
         </Link>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl bg-ink p-5 text-cream sm:col-span-2">
+          <div className="text-sm font-semibold text-butter">Total spent on school fees</div>
+          <div className="mt-1 text-4xl font-extrabold">&#8358;{totalNGN.toLocaleString()}</div>
+          <div className="text-sm text-cream/80">&asymp; ${totalUSD.toFixed(2)}</div>
+        </div>
+        <div className="rounded-2xl bg-butter p-5">
+          <div className="text-sm font-semibold text-navy/80">Paid payments</div>
+          <div className="mt-1 text-4xl font-extrabold">{paid.length}</div>
+        </div>
       </div>
 
       {list === null && <p>Loading...</p>}

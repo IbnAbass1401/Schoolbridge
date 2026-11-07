@@ -5,7 +5,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-export default function AuthForm({ mode }: { mode: "login" | "register" }) {
+export default function AuthForm({
+  mode,
+  role = "parent",
+}: {
+  mode: "login" | "register";
+  role?: "parent" | "student";
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,13 +24,13 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
     setError("");
     setLoading(true);
     try {
-      await api(`/auth/${mode}`, {
+      const u = await api<{ role: string }>(`/auth/${mode}`, {
         method: "POST",
         body: JSON.stringify(
-          mode === "register" ? { name, email, password } : { email, password }
+          mode === "register" ? { name, email, password, role } : { email, password }
         ),
       });
-      router.push("/dashboard");
+      router.push(u.role === "student" ? "/student/dashboard" : "/dashboard");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -36,11 +42,21 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const input =
     "min-h-12 rounded-xl border-2 border-slate-300 bg-white px-4 font-semibold outline-none focus:border-navy";
 
+  const title =
+    mode === "login"
+      ? "Log in"
+      : role === "student"
+      ? "Create student account"
+      : "Create parent account";
+
   return (
     <main className="mx-auto flex max-w-md flex-col gap-6 px-5 py-14">
-      <h1 className="text-3xl font-extrabold">
-        {mode === "login" ? "Parent log in" : "Create parent account"}
-      </h1>
+      <h1 className="text-3xl font-extrabold">{title}</h1>
+      {mode === "register" && role === "student" && (
+        <p className="text-sm text-navy/80">
+          Sign up with the same email your parent used when paying for you.
+        </p>
+      )}
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         {mode === "register" && (
@@ -70,7 +86,12 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
 
       <p className="text-sm text-navy/80">
         {mode === "login" ? (
-          <>No account? <Link href="/register" className="font-bold underline">Sign up</Link></>
+          <>
+            No account?{" "}
+            <Link href="/register" className="font-bold underline">Parent sign up</Link>
+            {" or "}
+            <Link href="/student/register" className="font-bold underline">Student sign up</Link>
+          </>
         ) : (
           <>Already registered? <Link href="/login" className="font-bold underline">Log in</Link></>
         )}

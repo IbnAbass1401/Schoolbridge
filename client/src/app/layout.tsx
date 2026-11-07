@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-sans antialiased">
-        <Navbar />
+        <Suspense fallback={<div className="h-[68px] bg-ink" />}>
+          <Navbar />
+        </Suspense>
         {children}
       </body>
     </html>

@@ -12,8 +12,10 @@ export const PAYMENT_STATUSES = [
 const paymentSchema = new Schema(
   {
     parent: { type: Types.ObjectId, ref: "User", required: true },
+    student: { type: Types.ObjectId, ref: "User" },
     studentName: { type: String, required: true, trim: true },
     studentEmail: { type: String, required: true, lowercase: true, trim: true },
+    studentLevel: { type: String, default: "" },
     university: { type: String, enum: UNIVERSITIES, required: true },
     term: { type: String, required: true, trim: true },
     amountNGN: { type: Number, required: true, min: 1 },

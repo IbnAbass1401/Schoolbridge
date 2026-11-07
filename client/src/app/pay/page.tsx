@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useRequireAuth } from "@/lib/useRequireAuth";
+import { LEVELS } from "@/lib/constants";
 
 export default function PayPage() {
-  const user = useRequireAuth();
+  const user = useRequireAuth("parent");
   const router = useRouter();
   const [unis, setUnis] = useState<string[]>([]);
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
+  const [studentLevel, setStudentLevel] = useState(LEVELS[0]);
   const [university, setUniversity] = useState("");
   const [term, setTerm] = useState("Spring 2027");
   const [amountNGN, setAmountNGN] = useState("500");
@@ -46,6 +48,7 @@ export default function PayPage() {
         body: JSON.stringify({
           studentName,
           studentEmail,
+          studentLevel,
           university,
           term,
           amountNGN: Number(amountNGN),
@@ -75,6 +78,14 @@ export default function PayPage() {
         <div className="flex flex-col gap-1">
           <label htmlFor="se" className="text-sm font-semibold">Child&rsquo;s email</label>
           <input id="se" type="email" className={input} value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)} required />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="lv" className="text-sm font-semibold">Child&rsquo;s level</label>
+          <select id="lv" className={input} value={studentLevel} onChange={(e) => setStudentLevel(e.target.value)}>
+            {LEVELS.map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="un" className="text-sm font-semibold">University</label>

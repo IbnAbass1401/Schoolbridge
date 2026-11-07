@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { User } from "../models/User";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { requireAuth, AuthRequest, Role } from "../middleware/auth";
 
 const router = Router();
 
@@ -13,8 +13,8 @@ const authLimiter = rateLimit({
   message: { message: "Too many attempts, try again later" },
 });
 
-function setAuthCookie(res: Response, userId: string) {
-  const token = jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
+function setAuthCookie(res: Response, userId: string, role: Role) {
+  const token = jwt.sign({ id: userId, role }, process.env.JWT_SECRET as string, {
     expiresIn: "7d",
   });
   res.cookie("token", token, {
@@ -25,9 +25,13 @@ function setAuthCookie(res: Response, userId: string) {
   });
 }
 
+function publicUser(user: any) {
+  return { id: user.id, name: user.name, email: user.email, role: user.role || "parent" };
+}
+
 router.post("/register", authLimiter, async (req, res) => {
   try {
-    const { name, email, password } = req.body ?? {};
+    const { name, email, password, role } = req.body ?? {};
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email and password are required" });
     }
@@ -38,11 +42,12 @@ router.post("/register", authLimiter, async (req, res) => {
     const exists = await User.findOne({ email: String(email).toLowerCase() });
     if (exists) return res.status(409).json({ message: "Email already registered" });
 
+    const safeRole: Role = role === "student" ? "student" : "parent";
     const passwordHash = await bcrypt.hash(String(password), 10);
-    const user = await User.create({ name, email, passwordHash });
+    const user = await User.create({ name, email, passwordHash, role: safeRole });
 
-    setAuthCookie(res, user.id);
-    res.status(201).json({ id: user.id, name: user.name, email: user.email });
+    setAuthCookie(res, user.id, safeRole);
+    res.status(201).json(publicUser(user));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Something went wrong" });
@@ -62,8 +67,8 @@ router.post("/login", authLimiter, async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    setAuthCookie(res, user.id);
-    res.json({ id: user.id, name: user.name, email: user.email });
+    setAuthCookie(res, user.id, (user.role as Role) || "parent");
+    res.json(publicUser(user));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Something went wrong" });
@@ -71,9 +76,9 @@ router.post("/login", authLimiter, async (req, res) => {
 });
 
 router.get("/me", requireAuth, async (req: AuthRequest, res) => {
-  const user = await User.findById(req.userId).select("name email");
+  const user = await User.findById(req.userId);
   if (!user) return res.status(404).json({ message: "User not found" });
-  res.json({ id: user.id, name: user.name, email: user.email });
+  res.json(publicUser(user));
 });
 
 router.post("/logout", (_req, res) => {

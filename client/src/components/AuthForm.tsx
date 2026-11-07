@@ -88,11 +88,12 @@ export default function AuthForm({
             <>
               No account?{" "}
               <Link href="/register" className="font-bold underline">Parent sign up</Link>
-              {" or "}
-              <Link href="/student" className="font-bold underline">Student sign up</Link>
             </>
           ) : (
-            <>Already registered? <Link href="/login" className="font-bold underline">Log in</Link></>
+            <>
+              Already registered?{" "}
+              <Link href="/login" className="font-bold underline">Log in</Link>
+            </>
           )}
         </p>
       )}

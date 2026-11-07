@@ -1,9 +1,21 @@
 const ORDER = ["unpaid", "paid", "sent_to_school", "confirmed"];
 
 const STEPS = [
-  { label: "Payment received", sub: "Your naira payment was collected" },
-  { label: "Sent to university", sub: "Converted and on its way" },
-  { label: "Confirmed", sub: "The university has received it" },
+  {
+    label: "Collection received (NGN)",
+    sub: "Your naira payment was collected into the business wallet",
+    api: "Blaaiz: collection.completed",
+  },
+  {
+    label: "Payout sent (USD)",
+    sub: "Converted and sent to the university",
+    api: "Blaaiz: payout.processing",
+  },
+  {
+    label: "Confirmed by school",
+    sub: "The university has received it",
+    api: "Blaaiz: payout.completed",
+  },
 ];
 
 export default function Timeline({ status }: { status: string }) {
@@ -22,6 +34,9 @@ export default function Timeline({ status }: { status: string }) {
             <div>
               <div className="font-extrabold">{s.label}</div>
               <div className="text-sm text-navy/70">{s.sub}</div>
+              <div className="mt-0.5 text-xs font-semibold text-navy/50">
+                {s.api} (demo)
+              </div>
             </div>
           </li>
         );

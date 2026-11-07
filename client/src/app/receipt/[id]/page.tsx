@@ -27,7 +27,6 @@ function ReceiptView() {
   const [p, setP] = useState<Payment | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [paying, setPaying] = useState(false);
 
   const load = useCallback(() => {
     api<Payment>(`/payments/${id}`).then(setP).catch((e) => setError(e.message));
@@ -44,18 +43,6 @@ function ReceiptView() {
     const t = setInterval(load, 2000);
     return () => clearInterval(t);
   }, [p, load]);
-
-  async function simulate() {
-    setPaying(true);
-    try {
-      const updated = await api<Payment>(`/payments/${id}/simulate`, { method: "POST" });
-      setP(updated);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
-    } finally {
-      setPaying(false);
-    }
-  }
 
   async function copy() {
     if (!p) return;
@@ -91,15 +78,14 @@ function ReceiptView() {
       {unpaid ? (
         <>
           <p className="text-sm text-navy/70">
-            Demo mode: this simulates the naira payment. Real payments will go through Blaaiz.
+            Demo mode: you will see a demo checkout. Real payments will go through Blaaiz.
           </p>
-          <button
-            onClick={simulate}
-            disabled={paying}
-            className="min-h-12 rounded-xl bg-gold text-lg font-extrabold text-ink hover:bg-butter disabled:opacity-60"
+          <Link
+            href={`/checkout/${p.id}`}
+            className="flex min-h-12 items-center justify-center rounded-xl bg-gold text-lg font-extrabold text-ink hover:bg-butter"
           >
-            {paying ? "Processing..." : `Pay ₦${p.amountNGN.toLocaleString()} (demo)`}
-          </button>
+            Pay ₦{p.amountNGN.toLocaleString()}
+          </Link>
         </>
       ) : (
         <>

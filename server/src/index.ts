@@ -9,7 +9,11 @@ import studentRoutes from "./routes/student";
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// Needed behind Render's proxy (secure cookies + rate limiter)
+app.set("trust proxy", 1);
+
+const clientUrl = (process.env.CLIENT_URL || "").replace(/\/$/, "");
+app.use(cors({ origin: clientUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 

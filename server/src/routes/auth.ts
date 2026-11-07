@@ -1,4 +1,4 @@
-import { Router, Response } from "express";
+import { Router, Response, CookieOptions } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
@@ -13,14 +13,21 @@ const authLimiter = rateLimit({
   message: { message: "Too many attempts, try again later" },
 });
 
+const isProd = process.env.NODE_ENV === "production";
+
+const cookieBase: CookieOptions = {
+  httpOnly: true,
+  // Client (Vercel) and server (Render) are on different domains in production
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
+};
+
 function setAuthCookie(res: Response, userId: string, role: Role) {
   const token = jwt.sign({ id: userId, role }, process.env.JWT_SECRET as string, {
     expiresIn: "7d",
   });
   res.cookie("token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    ...cookieBase,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
@@ -82,7 +89,7 @@ router.get("/me", requireAuth, async (req: AuthRequest, res) => {
 });
 
 router.post("/logout", (_req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", cookieBase);
   res.json({ ok: true });
 });
 
